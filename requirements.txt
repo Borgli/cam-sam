@@ -1,0 +1,5 @@
+numpy~=1.26.4
+pandas~=2.2.2
+pillow~=11.1.0
+scikit-learn==0.1.0
+supervision~=0.21.0
