@@ -1,34 +1,31 @@
 """
 experiment2.py
-This script is used to generate masks using the Florence model and save them to the disk.
-All generated masks are concatenated and saved in different formats for further analysis.
+This script utilizes the Microsoft Florence-2-base model for referring expression segmentation to detect polyps in images. It generates segmentation masks from a text prompt, overlays them on the original images, and calculates evaluation metrics (IoU Binary and IoU Micro) by comparing the generated masks with ground truth masks.
 
 Usage:
-- Place the input images in the specified folder `images_path`.
-- Place the ground truth masks in the specified `mask_path`.
+- Set the paths for input images and ground truth masks in `IMAGES_PATH` and `MASK_PATH`.
+- Ensure that the Florence model and processor are accessible via Hugging Face.
+- Adjust the task prompt and text caption as needed.
+- Run the script to generate overlay images, raw masks, and CSV files containing IoU scores.
 
 Steps:
-1. Load the Florence model.
-2. Iterate over each image in the `images_path`.
-3. Generate masks using the Florence model.
-4. Save the generated masks in different formats.
-5. Calculate and save the IoU scores.
+1. Load the Florence-2-base model and its processor.
+2. Create directories for saving overlay and raw mask images.
+3. Iterate over each image in the specified input directory.
+4. Generate segmentation results using a combined task prompt and text caption.
+5. Extract polygon vertices from the output and create binary masks.
+6. Annotate the original image with the generated masks using a mask annotator.
+7. Compute IoU scores (binary and micro) by comparing the generated masks with ground truth.
+8. Save the overlay images, raw masks, and export IoU scores to CSV files.
 
 Outputs:
-- Generated masks in `florence_masks/overlay`.
-- Raw masks in `florence_masks/raw`.
-- IoU scores in `florence_masks/iou_scores_binary.csv` and `florence_masks/iou_scores_micro.csv`.
+- Annotated overlay images in `florence_masks/overlay`.
+- Raw binary mask images in `florence_masks/raw`.
+- CSV files with IoU scores: `iou_scores_binary.csv` and `iou_scores_micro.csv`.
 
 Dependencies:
-- copy
-- os
-- pathlib
-- numpy
-- pandas
-- PIL
-- sklearn
-- supervision
-- transformers
+- Standard libraries: copy, os, pathlib
+- External libraries: numpy, pandas, PIL, sklearn, supervision, transformers
 
 """
 
@@ -45,8 +42,8 @@ import supervision as sv
 from transformers import AutoModelForCausalLM, AutoProcessor
 
 
-IMAGES_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/images')
-MASK_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/masks')
+IMAGES_PATH = Path()
+MASK_PATH = Path()
 
 
 def run_example(task_prompt, text_input=None):
@@ -69,7 +66,6 @@ def run_example(task_prompt, text_input=None):
         task=task_prompt,
         image_size=(image.width, image.height)
     )
-
     return parsed_answer
 
 
@@ -97,9 +93,7 @@ if __name__ == '__main__':
         text_caption = 'polyp'
         results = run_example(task_prompt, text_input=text_caption)
         output_image = copy.deepcopy(image)
-        # output_segmentation_image = draw_polygons(output_image, results['<REFERRING_EXPRESSION_SEGMENTATION>'], fill_mask=True)
 
-        # vertices = results['<REFERRING_EXPRESSION_SEGMENTATION>']['polygons'][0]
         polygons = []
         for vertices in results['<REFERRING_EXPRESSION_SEGMENTATION>']['polygons'][0]:
             polygon = [(vertices[i], vertices[i + 1]) for i in range(0, len(vertices), 2)]

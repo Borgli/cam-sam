@@ -1,7 +1,36 @@
+'''
+experiment4.py
+This script applies the LangSAM model for polyp segmentation in colon images. It processes images by generating segmentation masks, bounding boxes, and detected phrases based on a descriptive text prompt, then filters and evaluates the masks against ground truth.
+
+Usage:
+- Ensure that the paths for input images and ground truth masks are correctly set in `IMAGES_PATH` and `MASK_PATH`.
+- Confirm that the LangSAM class is imported properly.
+- Adjust the `text_prompt` if necessary to suit the desired detection scenario.
+- Run the script to generate annotated overlay images and evaluation metrics.
+
+Steps:
+1. Define a detailed text prompt for polyp detection.
+2. Provide helper functions for downloading images, saving masks, and visualizing results.
+3. Load images and their corresponding ground truth masks.
+4. Predict segmentation masks, bounding boxes, phrases, and confidence logits using the LangSAM model.
+5. Convert predicted masks to numpy arrays and filter them based on size thresholds.
+6. Annotate the original image with the filtered mask overlay.
+7. Calculate evaluation metrics by comparing the generated mask with the ground truth.
+8. Save overlay images, metrics, and aggregated statistics to disk.
+
+Outputs:
+- Annotated overlay images in `polyp_sam/overlay`.
+- CSV file with evaluation metrics: `polyp_sam/overlay_metrics.csv`.
+- CSV file with aggregated statistics: `polyp_sam/overlay_statistics.csv`.
+
+Dependencies:
+- Standard libraries: pathlib, os, time, io, requests
+- External libraries: pandas, torch, numpy, matplotlib, PIL, tqdm
+- Custom modules: LangSAM (segmentation model), supervision, and utils (providing calculate_all_metrics and calculate_statistics)
+'''
 
 from pathlib import Path
 
-import cv2
 import pandas as pd
 import torch
 from time import time
@@ -18,6 +47,9 @@ from tqdm import tqdm
 from utils import calculate_all_metrics, calculate_statistics
 
 import supervision as sv
+
+IMAGES_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/images')
+MASK_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/masks')
 
 # (import your actual LangSAM class if it's located in a different module)
 
@@ -88,22 +120,15 @@ def print_logits(logits):
     for i, logit in enumerate(logits):
         print(f"Logit {i+1}: {logit}")
 
-def save_mask(mask_np, filename):
-    mask_image = Image.fromarray((mask_np * 255).astype(np.uint8))
-    mask_image.save(filename)
-
-
 
 if __name__ == '__main__':
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     Path('polyp_sam').mkdir(exist_ok=True)
     Path('polyp_sam', 'overlay').mkdir(exist_ok=True)
-    #Path('polyp_sam', 'raw').mkdir(exist_ok=True)
-    #Path('polyp_sam', 'raw_npy').mkdir(exist_ok=True)
 
-    images_path = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/images')
-    mask_path = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/masks')
+    images_path = IMAGES_PATH
+    mask_path = MASK_PATH
 
     model = LangSAM()
 

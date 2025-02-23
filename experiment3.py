@@ -1,8 +1,45 @@
-import csv
-import json
+'''
+experiment3.py
+This script integrates the SAM model with CLIP-based filtering to generate and evaluate segmentation masks on images. It automatically downloads the SAM checkpoint if not available, adjusts image sizes, filters masks using a textual query, and computes IoU scores against ground truth masks.
+
+Usage:
+- Ensure internet connectivity to download the SAM checkpoint to the default cache directory ('~/.cache/SAM/sam_vit_h_4b8939.pth').
+- Set the paths for input images and ground truth masks in `images_path` and `mask_path`.
+- Adjust hyperparameters (e.g., `clip_threshold` and `query`) as needed.
+- Run the script to generate processed masks and evaluation metrics.
+
+Steps:
+1. Download and load the SAM model checkpoint.
+2. Load and cache SAM and CLIP models.
+3. Adjust the input image size to meet maximum dimension constraints.
+4. Generate segmentation masks using the SAM model.
+5. Compute CLIP scores on cropped mask regions based on a textual query.
+6. Filter and prune masks based on area and blackish thresholds.
+7. Save raw masks (as numpy arrays) and overlay images.
+8. Calculate and save IoU scores comparing generated masks with ground truth.
+
+Outputs:
+- Overlay images in `sam_clip/overlay`.
+- Raw mask images in `sam_clip/raw`.
+- Numpy arrays of masks in `sam_clip/raw_npy`.
+- IoU scores in `sam_clip/iou_scores_micro.csv`.
+
+Dependencies:
+- Standard libraries: os, urllib, pathlib, random, functools, typing
+- clip
+- cv2 (OpenCV)
+- numpy
+- PIL
+- pandas
+- torch
+- segment_anything
+- sklearn
+- supervision
+- utils (custom module)
+'''
+
 import os
 import urllib
-import time
 from functools import lru_cache
 from pathlib import Path
 from random import randint
@@ -10,7 +47,6 @@ from typing import Any, Callable, Dict, List, Tuple
 
 import clip
 import cv2
-import gradio as gr
 import numpy as np
 import PIL
 import pandas as pd
@@ -21,7 +57,7 @@ import torch
 from segment_anything import SamAutomaticMaskGenerator, sam_model_registry, SamPredictor
 from sklearn.metrics import jaccard_score
 
-from system import prune_masks
+from utils import prune_masks_if_blackish, prune_masks_outside_area
 
 CHECKPOINT_PATH = os.path.join(os.path.expanduser("~"), ".cache", "SAM")
 CHECKPOINT_NAME = "sam_vit_h_4b8939.pth"
@@ -160,8 +196,6 @@ def draw_masks(
 
 
 def segment(
-        #predicted_iou_threshold: float,
-        #stability_score_threshold: float,
         clip_threshold: float,
         image_path: str,
         query: str,
@@ -170,14 +204,10 @@ def segment(
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    # reduce the size to save gpu memory
-    #image = adjust_image_size(image)
     masks = mask_generator.generate(image)
     masks = filter_masks(
         image,
         masks,
-        #predicted_iou_threshold,
-        #stability_score_threshold,
         query,
         clip_threshold,
     )
@@ -195,8 +225,6 @@ if __name__ == '__main__':
     mask_path = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/masks')
 
     hyperparameters = {
-        "predicted_iou_threshold": 0.9,
-        "stability_score_threshold": 0.8,
         "clip_threshold": 0.9,
         "query": "polyp"
     }
@@ -210,8 +238,6 @@ if __name__ == '__main__':
         truth_mask = np.array(truth_mask) > 0.5
 
         masks = segment(
-            #hyperparameters["predicted_iou_threshold"],
-            #hyperparameters["stability_score_threshold"],
             hyperparameters["clip_threshold"],
             str(images_path / image_name),
             hyperparameters["query"],
@@ -220,21 +246,14 @@ if __name__ == '__main__':
         seg_masks = np.stack([mask['segmentation'] for mask in masks], axis=0)
         np.save(Path('sam_clip', 'raw_npy', Path(image_name).with_suffix('.npy')), seg_masks)
 
-        image_area = image_np.shape[0] * image_np.shape[1]
-        min_percentage, max_percentage = (1, 70)  # Minimum and maximum mask size (% of the image area)
-        min_size = min_percentage / 100 * image_area  # Minimum acceptable mask size (% of the image area)
-        max_size = max_percentage / 100 * image_area  # Maximum acceptable mask size (% of the image area)
-
-        # Prune masks that are too big or too small
-        masks = [mask for mask in masks if min_size < mask['area'] < max_size]
-
-        masks = prune_masks(masks, image_np, threshold=30, blackish_threshold=0.5)
+        # Prune masks
+        masks = prune_masks_outside_area(image_np.shape[0] * image_np.shape[1])
+        masks = prune_masks_if_blackish(masks, image_np, threshold=30, blackish_threshold=0.5)
 
         sam_detections = sv.Detections.from_sam(masks)
         generated_sam = sv.MaskAnnotator(color_lookup=sv.annotators.utils.ColorLookup.INDEX).annotate(image_np, sam_detections)
 
         Image.fromarray(generated_sam).save(Path('sam_clip', 'overlay', image_name))
-
 
         masks = [mask['segmentation'] for mask in masks]
         if masks:
