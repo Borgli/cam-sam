@@ -268,14 +268,19 @@ def create_experiment_folder(base_path, identifier):
 def find_overlap_with_iou(masks, predictor_mask):
     best_mask = None
     best_iou = 0
+
     for mask in masks:
+        # Calculate the overlap between the mask and the predictor_mask
         intersection = np.sum(mask['segmentation'] & predictor_mask)
         union = np.sum(mask['segmentation'] | predictor_mask)
         iou = intersection / union if union > 0 else 0
+
+        # If the overlap is higher than the best_overlap, update the best_mask and best_overlap
         if iou > best_iou:
             best_mask = mask
             best_iou = iou
-    return best_mask
+
+    return best_mask, best_iou
 
 
 # Define a custom callback to track the current step
