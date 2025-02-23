@@ -29,7 +29,7 @@ Steps:
 
 Dependencies:
 - Standard libraries: os, pickle, datetime, pathlib
-- External libraries: pandas, torchvision, cv2, numpy, supervision, sklearn.metrics
+- External libraries: pandas, torchvision, cv2, numpy, supervision, scikit-metrics
 '''
 
 import os

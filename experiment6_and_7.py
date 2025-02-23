@@ -25,7 +25,7 @@ Outputs:
 
 Dependencies:
 - Standard libraries: os, time, pathlib
-- External libraries: cv2, PIL, pandas, torch, numpy, matplotlib, torchvision, pytorch_grad_cam, tqdm
+- External libraries: cv2, pillow, pandas, torch, numpy, matplotlib, torchvision, grad-cam, tqdm
 - Custom modules: models (load_mobile_segment_anything_predictor, load_segment_anything, load_image_classifier) and utils (find_bounding_box, get_stored_gradcam, calculate_all_metrics, find_grad_cam_path, calculate_statistics, prune_masks_if_blackish, prune_masks_outside_area, create_experiment_folder, find_overlap_with_iou)
 '''
 
@@ -58,11 +58,11 @@ from utils import find_bounding_box, get_stored_gradcam, calculate_all_metrics, 
 image_size = (224, 224)
 class_target = 5
 
-IMAGES_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/images')
-MASK_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/masks')
+IMAGES_PATH = Path() # Change this to the path of the input images dir
+MASK_PATH = Path() # Change this to the path of the ground truth masks dir
 
-experiments_dir = Path('/mnt/e/SAMexperiments/experiments')
-generated_gradcam_dir = Path('/mnt/e/SAMexperiments/generated_gradcams')
+experiments_dir = Path('experiments')
+generated_gradcam_dir = Path('generated_gradcams')
 
 experiments_dir.mkdir(exist_ok=True)
 generated_gradcam_dir.mkdir(exist_ok=True)

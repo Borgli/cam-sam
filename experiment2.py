@@ -25,8 +25,7 @@ Outputs:
 
 Dependencies:
 - Standard libraries: copy, os, pathlib
-- External libraries: numpy, pandas, PIL, sklearn, supervision, transformers
-
+- External libraries: numpy, pandas, pillow, scikit-metrics, supervision, transformers
 """
 
 import copy
@@ -42,8 +41,8 @@ import supervision as sv
 from transformers import AutoModelForCausalLM, AutoProcessor
 
 
-IMAGES_PATH = Path()
-MASK_PATH = Path()
+IMAGES_PATH = Path() # Change this to the path of the input images dir
+MASK_PATH = Path() # Change this to the path of the ground truth masks dir
 
 
 def run_example(task_prompt, text_input=None):

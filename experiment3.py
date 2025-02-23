@@ -26,16 +26,8 @@ Outputs:
 
 Dependencies:
 - Standard libraries: os, urllib, pathlib, random, functools, typing
-- clip
-- cv2 (OpenCV)
-- numpy
-- PIL
-- pandas
-- torch
-- segment_anything
-- sklearn
-- supervision
-- utils (custom module)
+- External libraries: clip, cv2 (OpenCV), numpy, pillow, pandas, torch, segment_anything, scikit-metrics, supervision
+- Custom modules: utils (prune_masks_if_blackish, prune_masks_outside_area)
 '''
 
 import os

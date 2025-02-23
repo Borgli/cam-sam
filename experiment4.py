@@ -25,8 +25,8 @@ Outputs:
 
 Dependencies:
 - Standard libraries: pathlib, os, time, io, requests
-- External libraries: pandas, torch, numpy, matplotlib, PIL, tqdm
-- Custom modules: LangSAM (segmentation model), supervision, and utils (providing calculate_all_metrics and calculate_statistics)
+- External libraries: pandas, torch, numpy, matplotlib, pillow, tqdm, supervision, LangSAM (segmentation model)
+- Custom modules: utils (providing calculate_all_metrics and calculate_statistics)
 '''
 
 from pathlib import Path
@@ -48,8 +48,8 @@ from utils import calculate_all_metrics, calculate_statistics
 
 import supervision as sv
 
-IMAGES_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/images')
-MASK_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/masks')
+IMAGES_PATH = Path() # Change this to the path of the input images dir
+MASK_PATH = Path() # Change this to the path of the ground truth masks dir
 
 # (import your actual LangSAM class if it's located in a different module)
 

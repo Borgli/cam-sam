@@ -25,7 +25,7 @@ Outputs:
 
 Dependencies:
 - Standard libraries: json, os, subprocess, time, pathlib
-- External libraries: pandas, torch, numpy, pytorch_grad_cam, scikit-optimize, tqdm
+- External libraries: pandas, torch, numpy, grad-cam, scikit-optimize, tqdm
 - Custom modules: models (load_image_classifier, load_mobile_segment_anything_predictor), utils (load_image, find_bounding_box, load_mask, store_gradcam, get_stored_gradcam, calculate_all_metrics, find_grad_cam_path, calculate_statistics, create_experiment_folder, ProgressCounterCallback)
 '''
 
@@ -42,14 +42,13 @@ import numpy as np
 from pytorch_grad_cam import GradCAM, GradCAMPlusPlus, GradCAMElementWise, HiResCAM, EigenCAM, EigenGradCAM, \
     AblationCAM, ScoreCAM, XGradCAM, LayerCAM, FullGrad
 from skopt import gp_minimize
-from skopt.space import Categorical, Real
+from skopt.space import Real
 from skopt.utils import use_named_args
 from skopt.callbacks import VerboseCallback
 
 from tqdm import tqdm
 
 from models import load_image_classifier, load_mobile_segment_anything_predictor
-
 from utils import load_image, find_bounding_box, load_mask, store_gradcam, get_stored_gradcam, \
     calculate_all_metrics, find_grad_cam_path, calculate_statistics, create_experiment_folder, ProgressCounterCallback
 
@@ -59,11 +58,11 @@ class_target = 5
 steps = 10
 batch_size = 128
 
-IMAGES_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/images')
-MASK_PATH = Path('/mnt/e/Datasets/kvasir-seg/Kvasir-SEG/masks')
+IMAGES_PATH = Path() # Change this to the path of the input images dir
+MASK_PATH = Path() # Change this to the path of the ground truth masks dir
 
-experiments_dir = Path('/mnt/e/SAMexperiments/experiments')
-generated_gradcam_dir = Path('/mnt/e/SAMexperiments/generated_gradcams')
+experiments_dir = Path('experiments')
+generated_gradcam_dir = Path('generated_gradcams')
 
 experiments_dir.mkdir(exist_ok=True)
 generated_gradcam_dir.mkdir(exist_ok=True)
@@ -88,7 +87,7 @@ cam_methods = {
 image_classifier_model_path = Path('checkpoints', 'model_epochs47_batch32.pth')
 image_classifier = load_image_classifier(image_classifier_model_path)
 
-python_path = '/mnt/e/SAMexperiments/venv_wsl2/bin/python'
+python_path = 'python3'
 
 
 def run_optimizer_tuning():

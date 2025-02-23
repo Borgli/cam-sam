@@ -27,7 +27,7 @@ Outputs:
 
 Dependencies:
 - Standard libraries: os, pathlib, time
-- External libraries: numpy, pandas, torch, PIL, sklearn, supervision
+- External libraries: numpy, pandas, torch, pillow, scikit-metrics, supervision
 - Custom modules: models (load_segment_anything) and utils (prune_masks_if_blackish, prune_masks_outside_area)
 """
 

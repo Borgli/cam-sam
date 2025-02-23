@@ -25,7 +25,7 @@ Outputs:
 
 Dependencies:
 - Standard library: pathlib
-- External libraries: torch, torchvision, torch.nn
+- External libraries: torch, torchvision
 - Segmentation libraries: segment_anything, mobile_sam
 '''
 
