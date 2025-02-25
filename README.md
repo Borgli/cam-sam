@@ -48,7 +48,7 @@ Bib citation:
     number={1},
     article-number={22},
     year={2025},
-    ISSN = {2504-4990},
+    issn={2504-4990},
     publisher={Multidisciplinary Digital Publishing Institute (MDPI)},
     doi={10.3390/make7010022}
 }
