@@ -44,10 +44,12 @@ Bib citation:
     title={Automatic Prompt Generation Using Class Activation Maps for Foundational Models: A Polyp Segmentation Case Study},
     author={Borgli, Hanna and Stensland, H{\aa}kon Kvale and Halvorsen, P{\aa}l},
     journal={Machine Learning and Knowledge Extraction (MAKE)},
-    volume={1},
-    number={0},
-    pages={},
+    volume={7},
+    number={1},
+    article-number={22},
     year={2025},
-    publisher={Multidisciplinary Digital Publishing Institute (MDPI)}
+    ISSN = {2504-4990},
+    publisher={Multidisciplinary Digital Publishing Institute (MDPI)},
+    doi={10.3390/make7010022}
 }
 ```
